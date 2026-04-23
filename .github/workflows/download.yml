@@ -1,0 +1,52 @@
+# .github/workflows/download_posters.yml
+name: دانلود خودکار پوستر فیلم‌ها
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'سال میلادی مورد نظر (مثال: 2020)'
+        required: true
+        type: string
+        default: '2020'
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: 📥 دریافت کدها
+        uses: actions/checkout@v4
+      
+      - name: 🐍 نصب پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 📦 نصب کتابخانه‌ها
+        run: |
+          pip install requests
+      
+      - name: 🚀 اجرای اسکریپت دانلود پوستر
+        env:
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+          POSTERS_OUTPUT_DIR: './posters'
+        run: |
+          python download_movie_posters_by_year.py ${{ github.event.inputs.year }}
+      
+      - name: 📤 آپلود پوسترها به عنوان Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: posters-${{ github.event.inputs.year }}
+          path: |
+            ./posters/${{ github.event.inputs.year }}/*.jpg
+            ./posters/report_${{ github.event.inputs.year }}.json
+          retention-days: 90
+      
+      - name: 📤 آپلود فایل ZIP (اختیاری)
+        uses: actions/upload-artifact@v4
+        with:
+          name: posters-${{ github.event.inputs.year }}-zip
+          path: ./posters/posters_${{ github.event.inputs.year }}.zip
+          retention-days: 90
