@@ -33,7 +33,7 @@ jobs:
           TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
           POSTERS_OUTPUT_DIR: './posters'
         run: |
-          python download_movie_posters_by_year.py ${{ github.event.inputs.year }}
+          python download_posters.py ${{ github.event.inputs.year }}
       
       - name: 📤 آپلود پوسترها به عنوان Artifact
         uses: actions/upload-artifact@v4
